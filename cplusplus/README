@@ -1,0 +1,9 @@
+How to compile:
+	cd to the directory, type “make” to make the binary file “main”.
+	(or type “g++ -o main main.cpp -lpthread”.)
+
+How to run the program:
+	run “main”.
+
+Environment:
+	Any Linux-like os that support c++11 along with pthread or above.

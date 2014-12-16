@@ -232,6 +232,7 @@
 				2ABE30D51A27227D00CBC677 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
