@@ -115,7 +115,7 @@ void MainWindow::getsdc(int sd){
 }
 
 void init(){
-    if ((sd = connectsock("140.112.107.39", 5900, "TCP")) < 0){
+    if ((sd = connectsock("localhost", 6900, "TCP")) < 0){
         errexit("Faild to connect to server.");
     }
 }
@@ -215,7 +215,7 @@ void MainWindow::on_pushButton_2_clicked()
             qDebug() << logre.cap(1) << "#" << logre.cap(2);
             portno = logre.cap(2).toUShort();
             //ui->label->setText(ui->label->text()+logre.cap(1)+"#"+logre.cap(2));
-            sds = passivesock(logre.cap(2).toUShort(), SOMAXCONN);
+            sds = passivesock(logre.cap(2).toUShort()+1, SOMAXCONN);
             Thread *thread1 = new Thread(sds);
             thread1->start();
             connect(thread1, SIGNAL(appendtext(QString)), this, SLOT(settext(QString)));

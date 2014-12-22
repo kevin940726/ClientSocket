@@ -150,13 +150,20 @@ int main(int argc, const char * argv[]) {
     memset(req, 0, BLEN);
     memset(buf, 0, BLEN);
     int sd, sds, sdc;
-    u_short portno;
-    sd = connectsock("140.112.107.39", 5900, "TCP"); //140.112.107.39:5900
+    std::string host = "localhost";
+    u_short portno = 6900;
+    if (argc == 2) portno = strtol(argv[1], NULL, 10);
+    if (argc == 3){
+        host = argv[1];
+        portno = strtol(argv[2], NULL, 10);
+    }
+    sd = connectsock(host.c_str(), portno, "TCP"); //140.112.107.39:5900
     portno = 0;
     
     std::string name;
     std::cout << "Register name: ";
     std::cin >> name;
+    
     std::string reqs = "REGISTER#" + name;
     if (send(sd, reqs.c_str(), strlen(reqs.c_str()), 0) < 0)
         errexit("Failed to send the request");
@@ -200,7 +207,6 @@ int main(int argc, const char * argv[]) {
         regmatch_t matches[1];
         if (regexec(&talkwithserver, format.c_str(), 1, matches, 0) == 0){
             if (format == "List"){
-                std::cout << "waiting list" << std::endl;
                 if (send(sd, "List", 4, 0) < 0)
                     errexit("Failed to send the request");
                 memset(buf, 0, BLEN);
