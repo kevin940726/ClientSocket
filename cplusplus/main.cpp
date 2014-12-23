@@ -214,6 +214,15 @@ int main(int argc, const char * argv[]) {
                     errexit("Failed to receive the response.");
                 std::cout << buf;
             }
+            else if (format == "Exit"){
+                if (send(sd, "Exit", 4, 0) < 0)
+                    errexit("Failed to send the request");
+                memset(buf, 0, BLEN);
+                if (recv(sd, bptr, buflen, 0) < 0)
+                    errexit("Failed to receive the response.");
+                std::cout << buf;
+                break;
+            }
             else{
                 if (send(sd, "List", 4, 0) < 0)
                     errexit("Failed to send the request");
@@ -254,10 +263,8 @@ int main(int argc, const char * argv[]) {
             }
         }
     }
-    pthread_join(serverThread, NULL);
     
     if (shutdown(sd, SHUT_RDWR) < 0)
         return errexit("shutdown");
-    std::cout << "out";
     return 0;
 }
