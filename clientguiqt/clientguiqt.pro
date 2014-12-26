@@ -18,6 +18,7 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     thread.h \
-    recving.h
+    recving.h \
+    class.h
 
 FORMS    += mainwindow.ui

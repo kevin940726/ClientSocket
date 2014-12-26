@@ -8,7 +8,7 @@
 #include <QtDebug>
 #include "mainwindow.h"
 
-#define BLEN    1200
+#define BLEN    1024
 
 void Thread::run() {
     struct sockaddr_in clientAddr;
@@ -21,14 +21,18 @@ void Thread::run() {
 
     while (true){
         qDebug() << "Waiting...";
-        if((sdc = ::accept(sds, (struct sockaddr *)&clientAddr, &addrlen)) > 0){
+        if((sdc = accept(sds, (struct sockaddr *)&clientAddr, &addrlen)) > 0){
             qDebug() << "received";
-            emit appendtext("connected.\n");
+            emit resettext("connected.\n");
             emit sdcSignal(sdc);
+            int length;
             while (true){
-                if (recv(sdc, bptr, buflen, 0) < 0) qDebug() << "recv";
-                qDebug() << buf;
-                emit appendtext(buf);
+                if ((length = recv(sdc, bptr, buflen, 0)) > 0)
+                    emit appendtext(buf);
+                else if (length == 0){
+                    emit appendtext("Disconnected.");
+                    break;
+                }
                 memset(buf, 0, BLEN);
             }
 

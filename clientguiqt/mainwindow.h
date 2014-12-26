@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <thread.h>
 #include <QListWidgetItem>
 
 namespace Ui {
@@ -22,9 +21,12 @@ public:
     Ui::MainWindow *ui;
 
 private slots:
-    void on_pushButton_clicked();
-    void settext(QString s);
     void getsdc(int sd);
+
+    void settext(QString s);
+
+    void resettext(QString s);
+
     void on_pushButton_3_clicked();
 
     void on_pushButton_2_clicked();
@@ -32,6 +34,8 @@ private slots:
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
 
     void on_lineEdit_4_returnPressed();
+
+    void on_lineEdit_3_returnPressed();
 
 private:
 

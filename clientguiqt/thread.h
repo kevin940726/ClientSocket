@@ -16,6 +16,7 @@ protected:
 
 signals:
     void appendtext(QString s);
+    void resettext(QString s);
     void sdcSignal(int sd);
 
 private:

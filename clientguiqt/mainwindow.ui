@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Hit Connect.</string>
+     <string>Click Send to communicate with server.</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -34,8 +34,8 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>10</y>
-      <width>241</width>
+      <y>13</y>
+      <width>251</width>
       <height>21</height>
      </rect>
     </property>
@@ -44,9 +44,9 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>0</y>
-      <width>113</width>
-      <height>41</height>
+      <y>10</y>
+      <width>111</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -119,6 +119,13 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuServer">
+    <property name="title">
+     <string>Server</string>
+    </property>
+    <addaction name="actionReconnect"/>
+   </widget>
+   <addaction name="menuServer"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -129,6 +136,11 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionReconnect">
+   <property name="text">
+    <string>Reconnect</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

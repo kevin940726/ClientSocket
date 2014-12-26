@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 #include "mainwindow.h"
 
-#define BLEN    1200
+#define BLEN    1024
 
 void recving::run()
 {
@@ -13,10 +13,14 @@ void recving::run()
     ssize_t buflen = sizeof(buf);
     memset(buf, 0, BLEN);
 
+    int length;
     while (true){
-        if (recv(sdc, bptr, buflen, 0) > 0) //qDebug() << "recv";
-        //qDebug() << buf;
-        emit appendtext(buf);
+        if ((length = recv(sdc, bptr, buflen, 0)) > 0)
+            emit appendtext(buf);
+        else if (length == 0){
+            emit appendtext("Disconnected.");
+            break;
+        }
         memset(buf, 0, BLEN);
     }
 }
