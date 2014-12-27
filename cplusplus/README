@@ -1,3 +1,6 @@
+IMPORTANT: THIS VERSION IS ABANDONED, USE “clientguiqt” INSTEAD.
+==================================================================
+
 How to compile:
 	cd to the directory, type “make” to make the binary file “main”.
 	(or type “g++ -o main main.cpp -lpthread”.)

@@ -7,6 +7,9 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <QMessageBox>
+#include <QtDebug>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 void errexit(std::string format){
     QMessageBox error;
@@ -59,6 +62,42 @@ int passivesock(u_short service, int qlen){
         errexit("listen");
 
     return s;
+}
+
+SSL_CTX* InitCTX(void)
+{   SSL_METHOD *method;
+    SSL_CTX *ctx;
+
+    OpenSSL_add_all_algorithms();  /* Load cryptos, et.al. */
+    SSL_load_error_strings();   /* Bring in and register error messages */
+    method = SSLv3_client_method();  /* Create new client-method instance */
+    ctx = SSL_CTX_new(method);   /* Create new context */
+    if ( ctx == NULL )
+    {
+        ERR_print_errors_fp(stderr);
+        abort();
+    }
+    return ctx;
+}
+
+void ShowCerts(SSL* ssl)
+{   X509 *cert;
+    char *line;
+
+    cert = SSL_get_peer_certificate(ssl); /* Get certificates (if available) */
+    if ( cert != NULL )
+    {
+        qDebug() << "Server certificates:\n";
+        line = X509_NAME_oneline(X509_get_subject_name(cert), 0, 0);
+        qDebug() << "Subject: " << line << "\n";
+        free(line);
+        line = X509_NAME_oneline(X509_get_issuer_name(cert), 0, 0);
+        qDebug() << "Issuer: " << line << "\n";
+        free(line);
+        X509_free(cert);
+    }
+    else
+        qDebug() << "No certificates.\n";
 }
 
 #endif // CLASS_H

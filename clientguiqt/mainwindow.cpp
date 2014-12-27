@@ -17,10 +17,14 @@
 #include <QtDebug>
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 #define BLEN 1024
 
 int sd, sds, sdc = 0;
+SSL_CTX *ctx;
+SSL *ssl;
 std::string name;
 u_short portno;
 QStringList list;
@@ -52,9 +56,15 @@ void MainWindow::resettext(QString s){
 }
 
 void init(){
+    SSL_library_init();
+    ctx = InitCTX();
     if ((sd = connectsock("localhost", 6900)) < 0){
         errwarning("Faild to connect to server.");
     }
+    ssl = SSL_new(ctx);      /* create new SSL connection state */
+    SSL_set_fd(ssl, sd);    /* attach the socket descriptor */
+    if (SSL_connect(ssl) == -1) errwarning("ssl");
+    ShowCerts(ssl);
 }
 
 void MainWindow::on_pushButton_3_clicked()
@@ -76,9 +86,9 @@ void MainWindow::on_pushButton_2_clicked()
     memset(buf, 0, BLEN);
 
     std::string req = ui->lineEdit_3->text().toStdString();
-    if (::send(sd, req.c_str(), strlen(req.c_str()), 0) < 0)
+    if (SSL_write(ssl, req.c_str(), strlen(req.c_str())) < 0)
         errexit("Failed to send to server.");
-    if (recv(sd, bptr, buflen, 0) < 0)
+    if (SSL_read(ssl, bptr, buflen) < 0)
         errexit("Failed to receive the response.");
 
     QRegExp reg("REGISTER#(.*)");
@@ -92,9 +102,9 @@ void MainWindow::on_pushButton_2_clicked()
         log = name + log;
         QRegExp logre(QString::fromStdString(log));
         memset(buf, 0, BLEN);
-        if (send(sd, "List", 4, 0) < 0)
+        if (SSL_write(ssl, "List", 4) < 0)
             errexit("Failed to send the request");
-        if (recv(sd, bptr, buflen, 0) < 0)
+        if (SSL_read(ssl, bptr, buflen) < 0)
             errexit("Failed to receive the response.");
         pos = logre.indexIn(QString(buf));
         if (pos > -1){

@@ -11,6 +11,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = clientguiqt
 TEMPLATE = app
 
+INCLUDEPATH += /usr/local/ssl/include/openssl
+
+LIBS += -L/usr/local/ssl/lib/libssl.a -L/usr/local/ssl/lib/libcrypto.a -lssl -lcrypto -lcurl
+
 SOURCES += main.cpp\
         mainwindow.cpp \
     thread.cpp \
