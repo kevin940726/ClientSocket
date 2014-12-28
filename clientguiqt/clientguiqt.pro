@@ -26,3 +26,7 @@ HEADERS  += mainwindow.h \
     class.h
 
 FORMS    += mainwindow.ui
+
+OTHER_FILES += \
+    mycert.pem \
+    mykey.pem

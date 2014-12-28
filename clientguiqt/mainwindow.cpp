@@ -17,14 +17,16 @@
 #include <QtDebug>
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include <QDir>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
 #define BLEN 1024
 
-int sd, sds, sdc = 0;
+int sd, sds, sdc;
 SSL_CTX *ctx;
 SSL *ssl;
+SSL *ssls;
 std::string name;
 u_short portno;
 QStringList list;
@@ -45,6 +47,10 @@ void MainWindow::getsdc(int sd){
     sdc = sd;
 }
 
+void MainWindow::getssl(SSL *ssl){
+    ssls = ssl;
+}
+
 void MainWindow::settext(QString s){
     ui->textBrowser->moveCursor(QTextCursor::End);
     ui->textBrowser->insertPlainText("<<" + s);
@@ -56,22 +62,24 @@ void MainWindow::resettext(QString s){
 }
 
 void init(){
-    SSL_library_init();
-    ctx = InitCTX();
     if ((sd = connectsock("localhost", 6900)) < 0){
         errwarning("Faild to connect to server.");
     }
+    SSL_library_init();
+    ctx = InitCTX();
     ssl = SSL_new(ctx);      /* create new SSL connection state */
     SSL_set_fd(ssl, sd);    /* attach the socket descriptor */
     if (SSL_connect(ssl) == -1) errwarning("ssl");
     ShowCerts(ssl);
+    QDir::setCurrent(QCoreApplication::applicationDirPath());
+    qDebug() << QCoreApplication::applicationDirPath();
 }
 
 void MainWindow::on_pushButton_3_clicked()
 {
     std::string buf = ui->lineEdit_4->text().toUtf8().constData();
     buf = buf + "\n";
-    if (send(sdc, buf.c_str(), strlen(buf.c_str()), 0) < 0) qDebug() << "send";
+    if (SSL_write(ssls, buf.c_str(), strlen(buf.c_str())) < 0) qDebug() << "send";
     ui->textBrowser->moveCursor(QTextCursor::End);
     ui->textBrowser->insertPlainText(QString::fromStdString(buf));
     ui->textBrowser->moveCursor(QTextCursor::End);
@@ -111,10 +119,17 @@ void MainWindow::on_pushButton_2_clicked()
             qDebug() << logre.cap(1) << "#" << logre.cap(2);
             portno = logre.cap(2).toUShort();
             sds = passivesock(logre.cap(2).toUShort()+1, SOMAXCONN);
-            Thread *thread1 = new Thread(sds);
+
+            SSL_CTX *ctxs;
+            SSL_library_init();
+            ctxs = InitServerCTX();        /* initialize SSL */
+            LoadCertificates(ctxs, "mycert.pem", "mykey.pem");
+
+            Thread *thread1 = new Thread(sds, ctxs);
             thread1->start();
             connect(thread1, SIGNAL(appendtext(QString)), this, SLOT(settext(QString)));
             connect(thread1, SIGNAL(sdcSignal(int)), this, SLOT(getsdc(int)));
+            connect(thread1, SIGNAL(sslSignal(SSL*)), this, SLOT(getssl(SSL*)));
             connect(thread1, SIGNAL(resettext(QString)), this, SLOT(resettext(QString)));
         }
     }
@@ -142,10 +157,18 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
     int pos = member.indexIn(item->text());
     if (pos > -1){
         qDebug() << member.cap(3).toUShort();
-        sdc = connectsock("localhost", member.cap(3).toUShort()+1);
+        int sdc = connectsock("localhost", member.cap(3).toUShort()+1);
         if (sdc < 0) errexit("Failed to connect.");
         ui->textBrowser->setText("connected.\n");
-        recving *recving1 = new recving(sdc);
+        SSL_library_init();
+        SSL_CTX *ctxc;
+        ctxc = InitCTX();
+        ssls = SSL_new(ctxc);
+        SSL_set_fd(ssls, sdc);
+        if (SSL_connect(ssls) == -1) errexit("ssls");
+        ShowCerts(ssls);
+
+        recving *recving1 = new recving(sdc, ssls);
         recving1->start();
         connect(recving1, SIGNAL(appendtext(QString)), this, SLOT(settext(QString)));
         connect(recving1, SIGNAL(resettext(QString)), this, SLOT(resettext(QString)));

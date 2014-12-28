@@ -3,6 +3,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include "mainwindow.h"
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 #define BLEN    1024
 
@@ -15,7 +17,7 @@ void recving::run()
 
     int length;
     while (true){
-        if ((length = recv(sdc, bptr, buflen, 0)) > 0)
+        if ((length = SSL_read(ssls, bptr, buflen)) > 0)
             emit appendtext(buf);
         else if (length == 0){
             emit appendtext("Disconnected.");

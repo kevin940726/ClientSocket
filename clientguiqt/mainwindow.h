@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QListWidgetItem>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 namespace Ui {
 class MainWindow;
@@ -22,6 +24,8 @@ public:
 
 private slots:
     void getsdc(int sd);
+
+    void getssl(SSL* ssl);
 
     void settext(QString s);
 
