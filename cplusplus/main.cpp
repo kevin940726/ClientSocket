@@ -1,9 +1,5 @@
 //
-//  main.cpp
-//  cplusplus
-//
-//  Created by Kai on 2014/11/27.
-//  Copyright (c) 2014年 Kai. All rights reserved.
+//  IMPORTANT: THIS VERSION IS ABANDONED, USE “clientguiqt” INSTEAD.
 //
 
 #include <iostream>
