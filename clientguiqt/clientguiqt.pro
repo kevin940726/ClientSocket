@@ -30,6 +30,6 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     reconnect.ui
 
-OTHER_FILES += \
-    mycert.pem \
-    mykey.pem
+OTHER_FILES +=
+
+RESOURCES +=

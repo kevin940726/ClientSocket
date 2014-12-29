@@ -72,10 +72,8 @@ void init(){
         ctx = InitCTX();
         ssl = SSL_new(ctx);      /* create new SSL connection state */
         SSL_set_fd(ssl, sd);    /* attach the socket descriptor */
-        if (SSL_connect(ssl) == -1) errwarning("ssl");
-        ShowCerts(ssl);
+        if (SSL_connect(ssl) == -1) errwarning("ssl error");
         QDir::setCurrent(QCoreApplication::applicationDirPath());
-        qDebug() << QCoreApplication::applicationDirPath();
     }
 }
 
@@ -168,14 +166,14 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
         qDebug() << member.cap(3).toUShort();
         int sdc = connectsock("localhost", member.cap(3).toUShort()+1);
         if (sdc < 0) errexit("Failed to connect.");
-        ui->textBrowser->setText("connected.\n");
+        ui->textBrowser->setText("connected.");
         SSL_library_init();
         SSL_CTX *ctxc;
         ctxc = InitCTX();
         ssls = SSL_new(ctxc);
         SSL_set_fd(ssls, sdc);
         if (SSL_connect(ssls) == -1) errexit("ssls");
-        ShowCerts(ssls);
+        showcerts(ssls);
 
         recving *recving1 = new recving(sdc, ssls);
         recving1->start();
@@ -219,12 +217,12 @@ void MainWindow::showcerts(SSL *ssl){
     cert = SSL_get_peer_certificate(ssl); /* Get certificates (if available) */
     if ( cert != NULL )
     {
-        ui->textBrowser->setText("Server certificates:");
+        ui->textBrowser->append("Server certificates:");
         line = X509_NAME_oneline(X509_get_subject_name(cert), 0, 0);
         ui->textBrowser->append("Subject: " + QString::fromUtf8(line));
         free(line);
         line = X509_NAME_oneline(X509_get_issuer_name(cert), 0, 0);
-        ui->textBrowser->append("Issuer: " + QString::fromUtf8(line));
+        ui->textBrowser->append("Issuer: " + QString::fromUtf8(line) + "\n");
         free(line);
         X509_free(cert);
     }

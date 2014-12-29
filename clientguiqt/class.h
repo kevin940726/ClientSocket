@@ -10,7 +10,6 @@
 #include <QtDebug>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include <QFile>
 
 void errexit(std::string format){
     QMessageBox error;
@@ -40,7 +39,7 @@ int connectsock(char *host, u_short service){
         errwarning("Failed to allocate to server.");
 
     if (connect(sd, (struct sockaddr *)&sin, sizeof(sin)) < 0)
-        errwarning("Faild to connect to server");
+        return -1;
 
     return sd;
 }
