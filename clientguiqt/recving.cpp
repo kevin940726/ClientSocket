@@ -8,6 +8,7 @@
 
 #define BLEN    1024
 
+//Receive message thread.
 void recving::run()
 {
     char buf[BLEN];

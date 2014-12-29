@@ -18,14 +18,17 @@ LIBS += -L/usr/local/ssl/lib/libssl.a -L/usr/local/ssl/lib/libcrypto.a -lssl -lc
 SOURCES += main.cpp\
         mainwindow.cpp \
     thread.cpp \
-    recving.cpp
+    recving.cpp \
+    reconnect.cpp
 
 HEADERS  += mainwindow.h \
     thread.h \
     recving.h \
-    class.h
+    class.h \
+    reconnect.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    reconnect.ui
 
 OTHER_FILES += \
     mycert.pem \

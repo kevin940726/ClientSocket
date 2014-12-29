@@ -23,7 +23,7 @@ void errwarning(std::string format){
     error.critical(0, "error", QString::fromStdString(format));
 }
 
-int connectsock(const char *host, u_short service){
+int connectsock(char *host, u_short service){
     struct hostent *phe;
     struct sockaddr_in sin;
     int sd;
@@ -34,13 +34,13 @@ int connectsock(const char *host, u_short service){
     if ( (phe = gethostbyname(host)) )
             memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
         else if ((sin.sin_addr.s_addr=inet_addr(host)) == INADDR_NONE)
-            errexit("can’t get host entry");
+            errwarning("can’t get host entry");
 
     if ((sd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-        errexit("Failed to allocate to server.");
+        errwarning("Failed to allocate to server.");
 
     if (connect(sd, (struct sockaddr *)&sin, sizeof(sin)) < 0)
-        errexit("Faild to connect to server");
+        errwarning("Faild to connect to server");
 
     return sd;
 }
@@ -82,7 +82,8 @@ SSL_CTX* InitCTX(void)
 }
 
 void ShowCerts(SSL* ssl)
-{   X509 *cert;
+{
+    X509 *cert;
     char *line;
 
     cert = SSL_get_peer_certificate(ssl); /* Get certificates (if available) */

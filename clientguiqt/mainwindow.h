@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QListWidgetItem>
+#include "reconnect.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
@@ -41,8 +42,15 @@ private slots:
 
     void on_lineEdit_3_returnPressed();
 
-private:
+    void on_actionReconnect_triggered();
 
+    void setPort(QString);
+
+    void reinit();
+
+    void showcerts(SSL* ssl);
+private:
+    Reconnect *newwindow;
 
 };
 

@@ -28,7 +28,8 @@ SSL_CTX *ctx;
 SSL *ssl;
 SSL *ssls;
 std::string name;
-u_short portno;
+const char* host = "localhost";
+u_short portno = 6900;
 QStringList list;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -61,20 +62,24 @@ void MainWindow::resettext(QString s){
     ui->textBrowser->setText(s);
 }
 
+//Set up and connect to the server.
 void init(){
-    if ((sd = connectsock("localhost", 6900)) < 0){
+    if ((sd = connectsock("localhost", portno)) < 0){
         errwarning("Faild to connect to server.");
     }
-    SSL_library_init();
-    ctx = InitCTX();
-    ssl = SSL_new(ctx);      /* create new SSL connection state */
-    SSL_set_fd(ssl, sd);    /* attach the socket descriptor */
-    if (SSL_connect(ssl) == -1) errwarning("ssl");
-    ShowCerts(ssl);
-    QDir::setCurrent(QCoreApplication::applicationDirPath());
-    qDebug() << QCoreApplication::applicationDirPath();
+    else{
+        SSL_library_init();
+        ctx = InitCTX();
+        ssl = SSL_new(ctx);      /* create new SSL connection state */
+        SSL_set_fd(ssl, sd);    /* attach the socket descriptor */
+        if (SSL_connect(ssl) == -1) errwarning("ssl");
+        ShowCerts(ssl);
+        QDir::setCurrent(QCoreApplication::applicationDirPath());
+        qDebug() << QCoreApplication::applicationDirPath();
+    }
 }
 
+//Send messages to the other client.
 void MainWindow::on_pushButton_3_clicked()
 {
     std::string buf = ui->lineEdit_4->text().toUtf8().constData();
@@ -86,6 +91,7 @@ void MainWindow::on_pushButton_3_clicked()
     ui->lineEdit_4->setText("");
 }
 
+//Communicate with the server.
 void MainWindow::on_pushButton_2_clicked()
 {
     char buf[BLEN];
@@ -106,6 +112,8 @@ void MainWindow::on_pushButton_2_clicked()
         name = reg.cap(1).toStdString();
         this->setWindowTitle(QString::fromStdString(name));
         qDebug() << QString::fromStdString(name);
+        showcerts(ssl);
+
         std::string log = "#(.*)#(.*)";
         log = name + log;
         QRegExp logre(QString::fromStdString(log));
@@ -151,6 +159,7 @@ void MainWindow::on_pushButton_2_clicked()
     ui->lineEdit_3->setText("");
 }
 
+//Connect to other client.
 void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 {
     QRegExp member("(.*)#(.*)#(.*)");
@@ -183,4 +192,40 @@ void MainWindow::on_lineEdit_4_returnPressed()
 void MainWindow::on_lineEdit_3_returnPressed()
 {
     on_pushButton_2_clicked();
+}
+
+//Handle reconnection.
+void MainWindow::on_actionReconnect_triggered()
+{
+    newwindow = new Reconnect();
+    newwindow->show();
+    connect(newwindow, SIGNAL(getPort(QString)), this, SLOT(setPort(QString)));
+    connect(newwindow, SIGNAL(reinit(void)), this, SLOT(reinit(void)));
+}
+
+void MainWindow::setPort(QString s){
+    portno = s.toUShort();
+    qDebug() << portno;
+}
+
+void MainWindow::reinit(){
+    init();
+}
+
+void MainWindow::showcerts(SSL *ssl){
+    X509 *cert;
+    char *line;
+
+    cert = SSL_get_peer_certificate(ssl); /* Get certificates (if available) */
+    if ( cert != NULL )
+    {
+        ui->textBrowser->setText("Server certificates:");
+        line = X509_NAME_oneline(X509_get_subject_name(cert), 0, 0);
+        ui->textBrowser->append("Subject: " + QString::fromUtf8(line));
+        free(line);
+        line = X509_NAME_oneline(X509_get_issuer_name(cert), 0, 0);
+        ui->textBrowser->append("Issuer: " + QString::fromUtf8(line));
+        free(line);
+        X509_free(cert);
+    }
 }

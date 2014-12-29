@@ -12,6 +12,7 @@
 
 #define BLEN    1024
 
+//Waiting for client to connect and communicate with.
 void Thread::run() {
     struct sockaddr_in clientAddr;
     socklen_t addrlen = sizeof(clientAddr);
